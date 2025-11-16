@@ -1,0 +1,33 @@
+{
+  "name": "comfyshare-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync-env": "node ../scripts/sync-env.mjs",
+    "dev": "next dev --port 5555",
+    "prebuild": "npm run sync-env -- --out .env.production",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "firebase": "^12.6.0",
+    "next": "16.0.3",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
