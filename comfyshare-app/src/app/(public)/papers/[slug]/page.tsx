@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react"
 import { collection, getDocs, limit, query, where } from "firebase/firestore"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import Head from "next/head"
 import { db } from "@/lib/firebase"
 import { useLeaves } from "@/hooks/useLeaves"
 import { useComments, createComment, deleteComment, updateComment, Comment } from "@/hooks/useComments"
@@ -118,35 +117,44 @@ const ReaderPage = ({ params }: PageProps) => {
     )
   }
 
-  const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
-  const description = book.subtitle || `Research paper by ${book.author}`
+  // Update meta tags for SEO and social sharing
+  useEffect(() => {
+    if (book) {
+      const description = book.subtitle || `Research paper by ${book.author}`
+      document.title = `${book.title} - Writebook`
+
+      // Update or create meta tags
+      const updateMetaTag = (property: string, content: string, isProperty = true) => {
+        const attr = isProperty ? 'property' : 'name'
+        let tag = document.querySelector(`meta[${attr}="${property}"]`) as HTMLMetaElement
+        if (!tag) {
+          tag = document.createElement('meta')
+          tag.setAttribute(attr, property)
+          document.head.appendChild(tag)
+        }
+        tag.content = content
+      }
+
+      updateMetaTag('description', description, false)
+      updateMetaTag('og:type', 'article')
+      updateMetaTag('og:title', book.title)
+      updateMetaTag('og:description', description)
+      updateMetaTag('og:url', window.location.href)
+      if (book.coverUrl) updateMetaTag('og:image', book.coverUrl)
+
+      updateMetaTag('twitter:card', 'summary_large_image', false)
+      updateMetaTag('twitter:title', book.title, false)
+      updateMetaTag('twitter:description', description, false)
+      if (book.coverUrl) updateMetaTag('twitter:image', book.coverUrl, false)
+
+      if (book.author) updateMetaTag('article:author', book.author)
+      if (book.publishedAt) {
+        updateMetaTag('article:published_time', timestampToDate(book.publishedAt)?.toISOString() || '')
+      }
+    }
+  }, [book])
 
   return (
-    <>
-      <Head>
-        <title>{book.title} - Writebook</title>
-        <meta name="description" content={description} />
-
-        {/* Open Graph */}
-        <meta property="og:type" content="article" />
-        <meta property="og:title" content={book.title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content={pageUrl} />
-        {book.coverUrl && <meta property="og:image" content={book.coverUrl} />}
-
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={book.title} />
-        <meta name="twitter:description" content={description} />
-        {book.coverUrl && <meta name="twitter:image" content={book.coverUrl} />}
-
-        {/* Article metadata */}
-        <meta property="article:author" content={book.author} />
-        {book.publishedAt && (
-          <meta property="article:published_time" content={timestampToDate(book.publishedAt)?.toISOString() || ''} />
-        )}
-      </Head>
-
       <main className="min-h-screen bg-neutral-50">
         <article className="mx-auto max-w-5xl px-6 py-12">
         <header className="rounded-3xl border border-neutral-200 bg-white p-10">
@@ -333,7 +341,6 @@ const ReaderPage = ({ params }: PageProps) => {
         </section>
       </article>
     </main>
-    </>
   )
 }
 
