@@ -5,11 +5,29 @@ import { fileURLToPath } from "url"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-// Repo root (two directories up from /scripts)
-const repoRoot = path.resolve(__dirname, "..", "..")
+const findFileUp = (startDir, filename) => {
+  let current = startDir
+  while (true) {
+    const candidate = path.join(current, filename)
+    try {
+      readFileSync(candidate)
+      return candidate
+    } catch (err) {
+      const parent = path.dirname(current)
+      if (parent === current) break
+      current = parent
+    }
+  }
+  return null
+}
 
-const firebaseJsonPath = path.join(repoRoot, "firebase.json")
-const firebasercPath = path.join(repoRoot, ".firebaserc")
+const firebaseJsonPath = findFileUp(__dirname, "firebase.json")
+const firebasercPath = findFileUp(__dirname, ".firebaserc")
+
+if (!firebaseJsonPath || !firebasercPath) {
+  console.error("Unable to locate firebase.json or .firebaserc. Ensure they exist at or above the scripts directory.")
+  process.exit(1)
+}
 
 const firebaseJson = JSON.parse(readFileSync(firebaseJsonPath, "utf8"))
 const firebaserc = JSON.parse(readFileSync(firebasercPath, "utf8"))
