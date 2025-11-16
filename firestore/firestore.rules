@@ -1,28 +1,92 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Models collection - public read, anyone can write
-    match /models/{modelId} {
-      allow read: if true;  // Public read access
-      allow write: if true; // Anyone can create/update models
+
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
     }
-    
-    // Preferences collection - public read/write for analytics
-    match /preferences/{preferenceId} {
-      allow read: if true;  // Public read access for analytics
-      allow write: if true; // Anyone can record preferences
+
+    // Helper function to check if user owns a resource
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
-    
-    // Comments collection - public read/write for social features
-    match /comments/{commentId} {
-      allow read: if true;  // Public read access
-      allow write: if true; // Anyone can create comments
+
+    // Helper function to get book data
+    function getBook(bookId) {
+      return get(/databases/$(database)/documents/writebook_books/$(bookId)).data;
     }
-    
-    // Zero-auth collection - public read/write for zero-auth identity system
-    match /zero-auth/{userId} {
-      allow read: if true;  // Public read access
-      allow write: if true; // Anyone can create/update their identity
+
+    // Helper function to check if book is published
+    function isBookPublished(bookId) {
+      return getBook(bookId).published == true;
+    }
+
+    // Helper function to check if user is book creator
+    function isBookCreator(bookId) {
+      return isSignedIn() && request.auth.uid == getBook(bookId).createdBy;
+    }
+
+    // User profiles
+    match /writebook_users/{userId} {
+      // Anyone can read user profiles (for displaying author names)
+      allow read: if isSignedIn();
+
+      // Users can only create/update their own profile
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId);
+
+      // Users can delete their own profile
+      allow delete: if isOwner(userId);
+    }
+
+    // Books (papers)
+    match /writebook_books/{bookId} {
+      // Anyone can read published books
+      // Only the creator can read their own drafts
+      allow read: if resource.data.published == true || isOwner(resource.data.createdBy);
+
+      // Authenticated users can create books
+      // Must set createdBy to their own uid
+      allow create: if isSignedIn() &&
+                       request.resource.data.createdBy == request.auth.uid;
+
+      // Only creator can update their book
+      // Cannot change createdBy field
+      allow update: if isOwner(resource.data.createdBy) &&
+                       request.resource.data.createdBy == resource.data.createdBy;
+
+      // Only creator can delete their book
+      allow delete: if isOwner(resource.data.createdBy);
+
+      // Leaves (pages/sections) subcollection
+      match /leaves/{leafId} {
+        // Anyone can read leaves of published books
+        // Only creator can read leaves of draft books
+        allow read: if isBookPublished(bookId) || isBookCreator(bookId);
+
+        // Only book creator can write leaves
+        allow write: if isBookCreator(bookId);
+      }
+
+      // Comments subcollection
+      match /comments/{commentId} {
+        // Anyone can read comments on published books
+        allow read: if isBookPublished(bookId);
+
+        // Authenticated users can create comments
+        // Must set userId to their own uid
+        allow create: if isSignedIn() &&
+                         request.resource.data.userId == request.auth.uid;
+
+        // Users can update/delete their own comments
+        // OR book creator can delete any comment on their book
+        allow update: if isSignedIn() &&
+                         (isOwner(resource.data.userId) || isBookCreator(bookId));
+
+        allow delete: if isSignedIn() &&
+                         (isOwner(resource.data.userId) || isBookCreator(bookId));
+      }
     }
   }
 }

@@ -9,10 +9,12 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import { AppShell } from "@/components/AppShell"
+import { ConfirmDialog } from "@/components/ConfirmDialog"
 import { db, storage } from "@/lib/firebase"
 import { useLeaves, createLeaf, updateLeaf, deleteLeaf } from "@/hooks/useLeaves"
 import { ensureUniqueSlug, updateBook } from "@/hooks/useBooks"
 import { WritebookBook } from "@/types/writebook"
+import { isValidImageSize, isValidImageType, formatFileSize } from "@/lib/validation"
 
 type PageProps = {
   params: { bookId: string }
@@ -137,10 +139,31 @@ const PaperEditorPage = ({ params }: PageProps) => {
   }
 
   const handleCoverUpload = async (file: File) => {
-    const storageRef = ref(storage, `writebook/books/${bookId}/cover-${file.name}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
-    await updateBook(bookId, { coverUrl: url })
+    // Validate file type
+    if (!isValidImageType(file)) {
+      setStatusMessage("Error: Please upload a valid image file (JPEG, PNG, GIF, or WebP)")
+      setTimeout(() => setStatusMessage(null), 5000)
+      return
+    }
+
+    // Validate file size (5MB max)
+    if (!isValidImageSize(file, 5)) {
+      setStatusMessage(`Error: Image file is too large (${formatFileSize(file.size)}). Maximum size is 5MB.`)
+      setTimeout(() => setStatusMessage(null), 5000)
+      return
+    }
+
+    try {
+      const storageRef = ref(storage, `covers/${bookId}/${file.name}`)
+      await uploadBytes(storageRef, file)
+      const url = await getDownloadURL(storageRef)
+      await updateBook(bookId, { coverUrl: url })
+      setStatusMessage("Cover image uploaded successfully")
+      setTimeout(() => setStatusMessage(null), 3000)
+    } catch (error) {
+      setStatusMessage(`Error uploading cover: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setTimeout(() => setStatusMessage(null), 5000)
+    }
   }
 
   const previewUrl = useMemo(() => (book?.slug ? `/papers/${book.slug}` : null), [book?.slug])
@@ -285,13 +308,22 @@ const PaperEditorPage = ({ params }: PageProps) => {
                       >
                         Down
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => deleteLeaf(bookId, leaf.id)}
-                        className="rounded-full border border-red-200 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-500"
+                      <ConfirmDialog
+                        title="Delete Section"
+                        message={`Are you sure you want to delete "${editingLeaves[leaf.id]?.title || 'this section'}"? This action cannot be undone.`}
+                        confirmLabel="Delete"
+                        onConfirm={() => deleteLeaf(bookId, leaf.id)}
                       >
-                        Delete
-                      </button>
+                        {({ open }) => (
+                          <button
+                            type="button"
+                            onClick={open}
+                            className="rounded-full border border-red-200 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-500 hover:bg-red-50"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </ConfirmDialog>
                     </div>
                   </div>
                   <div className="mt-4 grid gap-6 md:grid-cols-2">

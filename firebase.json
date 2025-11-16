@@ -8,15 +8,7 @@
   "storage": {
     "rules": "storage/storage.rules"
   },
-  "hosting": {
-    "site": "comfyshare",
-    "public": "out",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  },
+
   "projectEnvironments": {
     "starmind-72daa": {
       "NEXT_PUBLIC_FIREBASE_API_KEY": "REPLACE_WITH_API_KEY",

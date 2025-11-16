@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from "react"
 import { collection, getDocs, limit, query, where } from "firebase/firestore"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import Head from "next/head"
 import { db } from "@/lib/firebase"
 import { useLeaves } from "@/hooks/useLeaves"
 import { useComments, createComment, deleteComment, updateComment, Comment } from "@/hooks/useComments"
 import { useAuth } from "@/contexts/AuthContext"
 import { WritebookBook } from "@/types/writebook"
 import { timestampToDate } from "@/lib/utils"
+import { ConfirmDialog } from "@/components/ConfirmDialog"
 
 type PageProps = {
   params: { slug: string }
@@ -116,9 +118,37 @@ const ReaderPage = ({ params }: PageProps) => {
     )
   }
 
+  const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
+  const description = book.subtitle || `Research paper by ${book.author}`
+
   return (
-    <main className="min-h-screen bg-neutral-50">
-      <article className="mx-auto max-w-5xl px-6 py-12">
+    <>
+      <Head>
+        <title>{book.title} - Writebook</title>
+        <meta name="description" content={description} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={book.title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={pageUrl} />
+        {book.coverUrl && <meta property="og:image" content={book.coverUrl} />}
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={book.title} />
+        <meta name="twitter:description" content={description} />
+        {book.coverUrl && <meta name="twitter:image" content={book.coverUrl} />}
+
+        {/* Article metadata */}
+        <meta property="article:author" content={book.author} />
+        {book.publishedAt && (
+          <meta property="article:published_time" content={timestampToDate(book.publishedAt)?.toISOString() || ''} />
+        )}
+      </Head>
+
+      <main className="min-h-screen bg-neutral-50">
+        <article className="mx-auto max-w-5xl px-6 py-12">
         <header className="rounded-3xl border border-neutral-200 bg-white p-10">
           <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">Writebook paper</p>
           <h1 className="mt-4 text-4xl font-semibold text-neutral-900">{book.title}</h1>
@@ -303,6 +333,7 @@ const ReaderPage = ({ params }: PageProps) => {
         </section>
       </article>
     </main>
+    </>
   )
 }
 
@@ -339,9 +370,18 @@ const CommentHeader = ({ comment, bookAuthorId, firebaseUserId, onEdit, onDelete
           </button>
         )}
         {(comment.userId === firebaseUserId || bookAuthorId === firebaseUserId) && (
-          <button type="button" className="font-semibold underline" onClick={onDelete}>
-            Delete
-          </button>
+          <ConfirmDialog
+            title="Delete Comment"
+            message="Are you sure you want to delete this comment? This action cannot be undone."
+            confirmLabel="Delete"
+            onConfirm={onDelete}
+          >
+            {({ open }) => (
+              <button type="button" className="font-semibold underline hover:text-red-600" onClick={open}>
+                Delete
+              </button>
+            )}
+          </ConfirmDialog>
         )}
       </div>
     )}

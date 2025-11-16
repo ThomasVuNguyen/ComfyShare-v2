@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { createBook } from "@/hooks/useBooks"
 import { createLeaf } from "@/hooks/useLeaves"
 import { DoiMetadata, fetchDoiMetadata } from "@/lib/doi"
+import { isValidDOI } from "@/lib/validation"
 
 const cleanAbstract = (input?: string) => {
   if (!input) return ""
@@ -29,8 +30,16 @@ const ImportPaperPage = () => {
     setError(null)
     setResult(null)
 
+    // Validate DOI format
+    const trimmedDoi = doi.trim()
+    if (!isValidDOI(trimmedDoi)) {
+      setError("Invalid DOI format. DOI should start with '10.' and contain a '/' (e.g., 10.1101/2024.01.001)")
+      setLoading(false)
+      return
+    }
+
     try {
-      const metadata = await fetchDoiMetadata(doi)
+      const metadata = await fetchDoiMetadata(trimmedDoi)
       if (!metadata) {
         throw new Error("Unable to find DOI")
       }

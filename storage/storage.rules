@@ -1,10 +1,36 @@
 rules_version = '2';
-
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isBookOwner(bookId) {
+      return isSignedIn() &&
+             firestore.get(/databases/(default)/documents/writebook_books/$(bookId)).data.createdBy == request.auth.uid;
+    }
+
+    function isValidImage() {
+      return request.resource.size < 5 * 1024 * 1024  // 5MB limit
+             && request.resource.contentType.matches('image/.*');
+    }
+
+    // Cover images for books
+    match /covers/{bookId}/{fileName} {
+      // Anyone can read cover images (for public viewing)
+      allow read: if true;
+
+      // Only authenticated users can upload cover images to their own books
+      // Must be under 5MB and must be an image
+      allow write: if isBookOwner(bookId) && isValidImage();
+
+      // Only book owner can delete cover images
+      allow delete: if isBookOwner(bookId);
+    }
+
+    // Fallback: deny all other paths
     match /{allPaths=**} {
       allow read, write: if false;
     }
