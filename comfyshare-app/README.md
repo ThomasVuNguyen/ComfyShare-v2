@@ -67,6 +67,10 @@ Before logging in, make sure the Firebase project has:
 - Comment threads (1 level of replies), edit/delete, author badge on comments by the book owner
 - Dashboard metrics (draft/published counts, total comment counts) and quick links to edit/publish
 
+## App Hosting / environment
+
+If you deploy with Firebase App Hosting, use `apphosting.yaml` to describe the Cloud Run settings (min/max instances, CPU/memory, concurrency) and list the environment variables that App Hosting should pull from Secret Manager. We’ve pre-populated it with the `NEXT_PUBLIC_FIREBASE_*` vars to keep the runtime config in sync.
+
 ## Testing / linting
 
 ```bash
