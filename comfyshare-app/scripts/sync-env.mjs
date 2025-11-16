@@ -5,7 +5,8 @@ import { fileURLToPath } from "url"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const repoRoot = path.resolve(__dirname, "..")
+// Repo root (two directories up from /scripts)
+const repoRoot = path.resolve(__dirname, "..", "..")
 
 const firebaseJsonPath = path.join(repoRoot, "firebase.json")
 const firebasercPath = path.join(repoRoot, ".firebaserc")
@@ -16,7 +17,8 @@ const envMap = firebaseJson.projectEnvironments || {}
 const aliasMap = firebaserc.projects || {}
 
 const args = process.argv.slice(2)
-let projectArg = process.env.FIREBASE_PROJECT || process.env.GCLOUD_PROJECT || process.env.PROJECT_ID || null
+let projectArg =
+  process.env.FIREBASE_PROJECT || process.env.GCLOUD_PROJECT || process.env.PROJECT_ID || aliasMap.default || null
 let outputFile = path.resolve(process.cwd(), ".env.local")
 
 for (const arg of args) {
@@ -28,7 +30,8 @@ for (const arg of args) {
 }
 
 if (!projectArg) {
-  projectArg = aliasMap.default
+  console.error("Unable to determine Firebase project. Pass --project <id> or set FIREBASE_PROJECT.")
+  process.exit(1)
 }
 
 const resolvedProject = aliasMap[projectArg] || projectArg
