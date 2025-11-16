@@ -5,7 +5,6 @@
   "scripts": {
     "sync-env": "node ./scripts/sync-env.mjs",
     "dev": "next dev --port 5555",
-    "prebuild": "npm run sync-env -- --out .env.production",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

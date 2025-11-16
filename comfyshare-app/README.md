@@ -14,14 +14,14 @@ This folder contains the Firebase-backed rewrite of Writebook. Researchers can s
 
 1. Define project-specific Firebase config inside `ComfyShare-v2/firebase.json` under `projectEnvironments`. Each Firebase project you target (prod, staging, etc.) should have the full `NEXT_PUBLIC_FIREBASE_*` block so the sync script knows what to write. The sample entry ships with placeholder values—replace them with real config from the Firebase console (these are safe to commit; they’re already public in client code).
 
-2. Generate `.env.local` from that mapping (can be rerun anytime). Pass `-- --project <alias-or-id>` if you want a non-default Firebase project:
+2. Generate `.env.local` from that mapping whenever you need it (optional convenience for local dev). Pass `-- --project <alias-or-id>` if you want a non-default Firebase project:
 
    ```bash
    npm run sync-env                # default project defined in .firebaserc
    npm run sync-env -- --project staging
    ```
 
-   When you deploy/build, `npm run build` automatically runs `npm run sync-env -- --out .env.production` so the export step always matches the selected Firebase project.
+   Alternatively, copy `.env.example` and edit it manually. App Hosting deploys don’t run this script; they rely on the environment variables declared in `apphosting.yaml`.
 
 3. Install dependencies:
 
