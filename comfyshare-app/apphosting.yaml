@@ -1,3 +1,13 @@
+# Settings for your App Hosting backend
 runConfig:
+  cpu: 1
   minInstances: 0
-  maxInstances: 8 
+  maxInstances: 8
+vpc: {}
+secrets:
+  - secret: NEXT_PUBLIC_FIREBASE_API_KEY
+  - secret: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+  - secret: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+  - secret: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+  - secret: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+  - secret: NEXT_PUBLIC_FIREBASE_APP_ID
