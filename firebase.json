@@ -9,7 +9,7 @@
     "rules": "storage/storage.rules"
   },
   "projectEnvironments": {
-    "comfyshare-a8fd8": { 
+    "comfyshare-a8fd8": {
       "NEXT_PUBLIC_FIREBASE_API_KEY": "REPLACE_WITH_API_KEY",
       "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "REPLACE_WITH_AUTH_DOMAIN",
       "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "comfyshare-a8fd8",
@@ -17,5 +17,16 @@
       "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "REPLACE_WITH_SENDER_ID",
       "NEXT_PUBLIC_FIREBASE_APP_ID": "REPLACE_WITH_APP_ID"
     }
+  },
+  "apphosting": {
+    "backendId": "comfyshare",
+    "rootDir": "./comfyshare-app",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "functions"
+    ]
   }
 }
