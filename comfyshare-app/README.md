@@ -69,7 +69,33 @@ Before logging in, make sure the Firebase project has:
 
 ## App Hosting / environment
 
-If you deploy with Firebase App Hosting, use `apphosting.yaml` to describe the Cloud Run settings (min/max instances, CPU/memory, concurrency) and list the environment variables that App Hosting should pull from Secret Manager. We’ve pre-populated it with the `NEXT_PUBLIC_FIREBASE_*` vars to keep the runtime config in sync.
+If you deploy with Firebase App Hosting, use `apphosting.yaml` to describe the Cloud Run settings (min/max instances, CPU/memory, concurrency) and list the environment variables that App Hosting should pull from Secret Manager. We've pre-populated it with the `NEXT_PUBLIC_FIREBASE_*` vars to keep the runtime config in sync.
+
+## Deployment
+
+### Manual Cloud Run Deployment (Gen2)
+
+Due to container threat detection requirements, this project must use the gen2 execution environment. Firebase App Hosting doesn't support gen2 configuration yet, so we deploy manually:
+
+1. **Build via Firebase** (builds the container but deployment will fail):
+   ```bash
+   firebase deploy --only apphosting:comfyshare --project=starmind-72daa
+   ```
+
+2. **Note the build tag** from the error message (e.g., `build-2025-11-17-003`)
+
+3. **Deploy to Cloud Run with gen2**:
+   ```bash
+   gcloud run deploy comfyshare \
+     --image=us-central1-docker.pkg.dev/starmind-72daa/firebaseapphosting-images/comfyshare:BUILD_TAG_HERE \
+     --region=us-central1 \
+     --project=starmind-72daa \
+     --execution-environment=gen2 \
+     --allow-unauthenticated \
+     --set-env-vars="NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyAw7sgwP4Q5cxz8z7N4Y8g5_BB7hdgzWG8,NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=starmind-72daa.firebaseapp.com,NEXT_PUBLIC_FIREBASE_PROJECT_ID=starmind-72daa,NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=starmind-72daa.firebasestorage.app,NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=372397827204,NEXT_PUBLIC_FIREBASE_APP_ID=1:372397827204:web:b3ba2cc01dde9abcee8ed1"
+   ```
+
+**Live URL**: https://comfyshare-372397827204.us-central1.run.app
 
 ## Testing / linting
 
