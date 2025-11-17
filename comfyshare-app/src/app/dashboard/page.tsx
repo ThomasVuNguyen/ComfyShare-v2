@@ -121,7 +121,10 @@ const DashboardPage = () => {
                       </td>
                       <td className="px-6 py-5 text-right">
                         <div className="flex justify-end gap-3">
-                          <Link href={`/papers/${book.id}/edit`} className="text-sm font-semibold text-neutral-900 underline">
+                          <Link
+                            href={`/dashboard/papers/${book.id}/edit`}
+                            className="text-sm font-semibold text-neutral-900 underline"
+                          >
                             Edit
                           </Link>
                           {book.published && (

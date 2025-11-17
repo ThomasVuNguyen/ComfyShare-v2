@@ -98,25 +98,6 @@ const ReaderPage = ({ params }: PageProps) => {
     return map
   }, [comments])
 
-  if (loading) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-neutral-50">
-        <p>Loading paper…</p>
-      </main>
-    )
-  }
-
-  if (!book || !book.published) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4 text-center">
-        <div>
-          <h1 className="text-3xl font-semibold text-neutral-900">Paper unavailable</h1>
-          <p className="mt-2 text-neutral-500">This slug doesn&apos;t exist or the paper is still a draft.</p>
-        </div>
-      </main>
-    )
-  }
-
   // Update meta tags for SEO and social sharing
   useEffect(() => {
     if (book) {
@@ -147,12 +128,31 @@ const ReaderPage = ({ params }: PageProps) => {
       updateMetaTag('twitter:description', description, false)
       if (book.coverUrl) updateMetaTag('twitter:image', book.coverUrl, false)
 
-      if (book.author) updateMetaTag('article:author', book.author)
+      if (book.author) updateMetaTag("article:author", book.author)
       if (book.publishedAt) {
-        updateMetaTag('article:published_time', timestampToDate(book.publishedAt)?.toISOString() || '')
+        updateMetaTag("article:published_time", timestampToDate(book.publishedAt)?.toISOString() || "")
       }
     }
   }, [book])
+
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-neutral-50">
+        <p>Loading paper…</p>
+      </main>
+    )
+  }
+
+  if (!book || !book.published) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4 text-center">
+        <div>
+          <h1 className="text-3xl font-semibold text-neutral-900">Paper unavailable</h1>
+          <p className="mt-2 text-neutral-500">This slug doesn&apos;t exist or the paper is still a draft.</p>
+        </div>
+      </main>
+    )
+  }
 
   return (
       <main className="min-h-screen bg-neutral-50">

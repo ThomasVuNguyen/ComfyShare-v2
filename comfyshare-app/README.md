@@ -54,7 +54,7 @@ Before logging in, make sure the Firebase project has:
 | `/dashboard` | List of all papers + stats + comment counts |
 | `/papers/new` | Blank paper creation |
 | `/papers/import` | DOI importer (Crossref/DataCite) |
-| `/papers/[bookId]/edit` | Markdown editor, cover upload, publish toggle |
+| `/dashboard/papers/[bookId]/edit` | Markdown editor, cover upload, publish toggle |
 | `/papers/[slug]` | Public reading experience + comments + replies |
 | `/settings` | Update name/email/password |
 

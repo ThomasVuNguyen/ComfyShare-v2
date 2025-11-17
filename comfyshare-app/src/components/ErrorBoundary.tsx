@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { Component, ReactNode } from 'react'
+import { Component, ReactNode, ErrorInfo } from "react"
 
 interface Props {
   children: ReactNode
@@ -27,9 +27,9 @@ export class ErrorBoundary extends Component<Props, State> {
     }
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to console in development
-    console.error('Error caught by boundary:', error, errorInfo)
+    console.error("Error caught by boundary:", error, errorInfo)
 
     // You can also log to an error reporting service here
     // Example: logErrorToService(error, errorInfo)
@@ -37,7 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   handleReset = () => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined })
-    window.location.href = '/'
+    window.location.href = "/"
   }
 
   render() {
@@ -51,11 +51,9 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
             <div className="text-center mb-6">
               <div className="text-6xl mb-4">⚠️</div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Something went wrong
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
               <p className="text-gray-600">
-                We encountered an unexpected error. Don't worry, your data is safe.
+                We encountered an unexpected error. Don&apos;t worry, your data is safe.
               </p>
             </div>
 

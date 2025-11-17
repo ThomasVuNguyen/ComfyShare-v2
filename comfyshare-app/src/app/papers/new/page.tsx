@@ -34,7 +34,7 @@ const NewPaperPage = () => {
         author: form.author,
         createdBy: firebaseUser.uid,
       })
-      router.push(`/papers/${bookId}/edit`)
+      router.push(`/dashboard/papers/${bookId}/edit`)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to create paper.")
     } finally {

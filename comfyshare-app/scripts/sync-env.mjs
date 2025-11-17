@@ -12,7 +12,7 @@ const findFileUp = (startDir, filename) => {
     try {
       readFileSync(candidate)
       return candidate
-    } catch (err) {
+    } catch {
       const parent = path.dirname(current)
       if (parent === current) break
       current = parent
