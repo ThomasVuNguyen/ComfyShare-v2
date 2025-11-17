@@ -1,7 +1,0 @@
-runConfig:
-  minInstances: 1
-  maxInstances: 50
-  concurrency: 80
-  cpu: 1
-  memoryMiB: 1024
-  executionEnvironment: gen2
