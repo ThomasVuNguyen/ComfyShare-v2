@@ -3,6 +3,7 @@ runConfig:
   cpu: 1
   minInstances: 0
   maxInstances: 8
+  executionEnvironment: gen2
 vpc: {}
 secrets:
   - secret: NEXT_PUBLIC_FIREBASE_API_KEY
